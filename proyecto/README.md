@@ -86,9 +86,18 @@ Abre `https://{DOMAIN}/n8n/` y importa los 5 JSON de `n8n-workflows/`. Ver su RE
 ## Roadmap (según MASTER_PROJECT.md)
 
 - **Hecho:** v7 (Pasos 1–9) + Fase 0A + Fase 0B (contratos/validadores/idempotencia)
-  + **Fase 0C** (script de onboarding técnico `scripts/onboard.js` — ver `scripts/README.md`).
-- **Siguiente:** Fase 0D (tests de carga: 10 reservas concurrentes, aislamiento, idempotencia).
-- Luego: Fase 1 (piloto salón de uñas), Fase 2 (hardening: outbox worker, backups)…
+  + **Fase 0C** (script de onboarding técnico `scripts/onboard.js` — ver `scripts/README.md`)
+  + **Fase 0D** (suite de garantías `tests/` — concurrencia, aislamiento, idempotencia).
+- **Siguiente:** Fase 1 — piloto real del salón de uñas.
+- Luego: Fase 2 (hardening: outbox worker, backups, rate limiting webhook)…
+
+## Tests (Fase 0D)
+```bash
+cd tests && npm install
+DATABASE_URL=postgres://saas_user:PASS@localhost:5432/saas_citas node --test
+```
+5 tests que reusan el código real del bot-service: 10 reservas concurrentes (1 gana),
+aislamiento multi-tenant e idempotencia del webhook. Ver `tests/README.md`.
 
 ## Alta de un cliente nuevo
 ```bash

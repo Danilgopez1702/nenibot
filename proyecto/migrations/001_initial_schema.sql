@@ -443,20 +443,20 @@ CREATE OR REPLACE FUNCTION is_slot_available(
   p_ends     TIMESTAMPTZ,
   p_exclude  UUID DEFAULT NULL
 ) RETURNS BOOLEAN AS $$
-DECLARE
-  v_conflict INT;
 BEGIN
-  SELECT COUNT(*) INTO v_conflict
-  FROM appointments a
-  WHERE a.tenant_id = p_tenant
-    AND a.employee_id = p_employee
-    AND a.status IN ('locked','confirmed')
-    AND (p_exclude IS NULL OR a.id <> p_exclude)
-    AND a.starts_at < p_ends
-    AND a.ends_at  > p_starts
-  FOR UPDATE SKIP LOCKED;
-
-  RETURN v_conflict = 0;
+  -- Reporta disponibilidad para mostrar slots y como pre-chequeo dentro de la
+  -- transacción de creación. La garantía final anti double-booking la da el
+  -- constraint EXCLUDE (migración 005), no esta función.
+  RETURN NOT EXISTS (
+    SELECT 1
+    FROM appointments a
+    WHERE a.tenant_id = p_tenant
+      AND a.employee_id = p_employee
+      AND a.status IN ('locked','confirmed')
+      AND (p_exclude IS NULL OR a.id <> p_exclude)
+      AND a.starts_at < p_ends
+      AND a.ends_at  > p_starts
+  );
 END;
 $$ LANGUAGE plpgsql;
 

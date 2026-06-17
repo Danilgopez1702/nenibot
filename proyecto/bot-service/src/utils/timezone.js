@@ -6,7 +6,7 @@
 function tzOffsetMinutes(timeZone, date) {
   const dtf = new Intl.DateTimeFormat('en-US', {
     timeZone,
-    hour12: false,
+    hourCycle: 'h23',
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
   });
@@ -15,7 +15,7 @@ function tzOffsetMinutes(timeZone, date) {
   }, {});
   const asUTC = Date.UTC(
     parseInt(parts.year, 10), parseInt(parts.month, 10) - 1, parseInt(parts.day, 10),
-    parseInt(parts.hour, 10), parseInt(parts.minute, 10), parseInt(parts.second, 10)
+    parseInt(parts.hour, 10) % 24, parseInt(parts.minute, 10), parseInt(parts.second, 10)
   );
   return (asUTC - date.getTime()) / 60000;
 }
@@ -23,14 +23,14 @@ function tzOffsetMinutes(timeZone, date) {
 // Dado 'YYYY-MM-DD' y timezone, devuelve { startUtc, endUtc } como Date (UTC).
 function tenantDayBoundsUtc(dateStr, timeZone) {
   const [y, m, d] = dateStr.split('-').map((n) => parseInt(n, 10));
-  // Medianoche local aproximada en UTC
+  // base = medianoche local tratada como UTC. El instante UTC real es base - offset.
   const approxStart = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
   const offStart = tzOffsetMinutes(timeZone, approxStart);
-  const startUtc = new Date(Date.UTC(y, m - 1, d, 0, 0, 0) + offStart * 60000);
+  const startUtc = new Date(Date.UTC(y, m - 1, d, 0, 0, 0) - offStart * 60000);
 
   const approxEnd = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0));
   const offEnd = tzOffsetMinutes(timeZone, approxEnd);
-  const endUtc = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0) + offEnd * 60000);
+  const endUtc = new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0) - offEnd * 60000);
 
   return { startUtc, endUtc };
 }

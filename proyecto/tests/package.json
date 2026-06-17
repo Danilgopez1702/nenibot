@@ -1,0 +1,13 @@
+{
+  "name": "saas-citas-tests",
+  "version": "1.0.0",
+  "description": "Fase 0D — tests de garantías (concurrencia, aislamiento, idempotencia)",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  }
+}

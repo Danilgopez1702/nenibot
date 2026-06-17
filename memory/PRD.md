@@ -52,11 +52,20 @@ Node.js 20 + Express · PostgreSQL 15 · Redis 7 · n8n · React 18 (Vite) · Ng
 - Paneles admin y client compilan (Vite build) ✓
 
 ## Backlog priorizado
-- **P1 — Fase 0D:** tests de carga (10 reservas concurrentes mismo slot), aislamiento, idempotencia (formalizados).
 - **P1:** Outbox worker (reintentos backoff) — Fase 2.1.
 - **P2 — Fase 1:** piloto real salón de uñas (alta, onboarding, primer booking, recordatorios).
 - **P2:** rate limiting webhook, backups Postgres→Minio, dashboard de costos por route.
 - Diferido (Fase 3+): audio/Whisper, AI Router/pgvector, Embedded Signup, Retell AI, RLS.
+
+### Fase 0D (tests de garantías) — HECHO
+- `tests/` con runner nativo (`node --test`), reusa el código REAL del bot-service.
+- `concurrency.test.js` (0D.1): 10 reservas concurrentes mismo slot → 1 gana, 9 rechazos, 0 double-booking.
+- `isolation.test.js` (0D.2): aislamiento multi-tenant (A no ve datos de B).
+- `idempotency.test.js` (0D.3): mismo `message_id` 3× → 1 registro.
+- Resultado: 5/5 verde en 0.6s. **Atrapó y arregló 2 bugs de producción:**
+  1. `is_slot_available()` usaba `COUNT(*)` + `FOR UPDATE SKIP LOCKED` (ilegal) → reescrito con `NOT EXISTS`.
+  2. `tenantDayBoundsUtc()` rompía por `hour12:false` ("24:00") y signo de offset invertido →
+     habría devuelto agenda/recordatorios/stats vacíos para tenants no-UTC (todos los reales).
 
 ### Fase 0C (script de onboarding técnico) — HECHO
 - `scripts/onboard.js` (CLI readline robusto) + libs env/db/password/validators/metaApi/whatsapp/provisioning/crypto.
