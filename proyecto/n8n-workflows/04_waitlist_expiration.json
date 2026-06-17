@@ -1,0 +1,28 @@
+{
+  "name": "04 Waitlist Expiration",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "minutes", "minutesInterval": 5 } ] } },
+      "id": "triggerWaitlist",
+      "name": "Cada 5 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 260, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://bot-service:3000/internal/waitlist/expire",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{$env.INTERNAL_API_SECRET}}" } ] },
+        "options": {}
+      },
+      "id": "httpWaitlist",
+      "name": "POST /internal/waitlist/expire",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 520, 300 ]
+    }
+  ],
+  "connections": { "Cada 5 min": { "main": [ [ { "node": "POST /internal/waitlist/expire", "type": "main", "index": 0 } ] ] } }
+}

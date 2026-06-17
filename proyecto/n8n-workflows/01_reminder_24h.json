@@ -1,0 +1,28 @@
+{
+  "name": "01 Reminder 24h",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "hours", "hoursInterval": 1 } ] } },
+      "id": "trigger24h",
+      "name": "Cada hora",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 260, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://bot-service:3000/internal/reminders/24h",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{$env.INTERNAL_API_SECRET}}" } ] },
+        "options": {}
+      },
+      "id": "http24h",
+      "name": "POST /internal/reminders/24h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 520, 300 ]
+    }
+  ],
+  "connections": { "Cada hora": { "main": [ [ { "node": "POST /internal/reminders/24h", "type": "main", "index": 0 } ] ] } }
+}

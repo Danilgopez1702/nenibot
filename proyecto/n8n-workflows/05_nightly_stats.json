@@ -1,0 +1,28 @@
+{
+  "name": "05 Nightly Stats",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "0 2 * * *" } ] } },
+      "id": "triggerStats",
+      "name": "2:00 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 260, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://bot-service:3000/internal/analytics",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{$env.INTERNAL_API_SECRET}}" } ] },
+        "options": {}
+      },
+      "id": "httpStats",
+      "name": "POST /internal/analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 520, 300 ]
+    }
+  ],
+  "connections": { "2:00 AM": { "main": [ [ { "node": "POST /internal/analytics", "type": "main", "index": 0 } ] ] } }
+}
