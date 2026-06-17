@@ -1,0 +1,16 @@
+{
+  "name": "onboard-scripts",
+  "version": "1.0.0",
+  "description": "Script de onboarding técnico — alta de un tenant nuevo",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "onboard": "node onboard.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.0"
+  }
+}

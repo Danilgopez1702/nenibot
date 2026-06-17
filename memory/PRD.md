@@ -52,13 +52,17 @@ Node.js 20 + Express · PostgreSQL 15 · Redis 7 · n8n · React 18 (Vite) · Ng
 - Paneles admin y client compilan (Vite build) ✓
 
 ## Backlog priorizado
-- **P0 — Fase 0C:** `scripts/onboard.js` + libs (env/db/password/validators/metaApi/whatsapp/provisioning).
-  Automatiza alta de tenant (INSERT, seed, integración cifrada, suscripción webhook Meta, primer mensaje, password panel).
 - **P1 — Fase 0D:** tests de carga (10 reservas concurrentes mismo slot), aislamiento, idempotencia (formalizados).
 - **P1:** Outbox worker (reintentos backoff) — Fase 2.1.
 - **P2 — Fase 1:** piloto real salón de uñas (alta, onboarding, primer booking, recordatorios).
 - **P2:** rate limiting webhook, backups Postgres→Minio, dashboard de costos por route.
 - Diferido (Fase 3+): audio/Whisper, AI Router/pgvector, Embedded Signup, Retell AI, RLS.
+
+### Fase 0C (script de onboarding técnico) — HECHO
+- `scripts/onboard.js` (CLI readline robusto) + libs env/db/password/validators/metaApi/whatsapp/provisioning/crypto.
+- Máquina de estados reanudable: draft→db_created→meta_configured→onboarding_sent.
+- Verificado: creación + seed idempotente, cifrado del wa_token descifrable por bot-service,
+  detección de token Meta inválido, reanudación con mismo wa_phone_id.
 
 ## Notas de despliegue
 - `cp .env.example .env`; `ENCRYPTION_KEY=$(openssl rand -hex 32)`; `CLAUDE_MODEL=claude-sonnet-4-6`.

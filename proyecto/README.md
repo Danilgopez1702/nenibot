@@ -85,6 +85,13 @@ Abre `https://{DOMAIN}/n8n/` y importa los 5 JSON de `n8n-workflows/`. Ver su RE
 
 ## Roadmap (según MASTER_PROJECT.md)
 
-- **Hecho:** v7 (Pasos 1–9) + Fase 0A + Fase 0B (contratos/validadores/idempotencia).
-- **Siguiente:** Fase 0C — script de onboarding técnico (`scripts/onboard.js`).
-- Luego: Fase 0D (tests de carga), Fase 1 (piloto salón de uñas), Fase 2 (hardening)…
+- **Hecho:** v7 (Pasos 1–9) + Fase 0A + Fase 0B (contratos/validadores/idempotencia)
+  + **Fase 0C** (script de onboarding técnico `scripts/onboard.js` — ver `scripts/README.md`).
+- **Siguiente:** Fase 0D (tests de carga: 10 reservas concurrentes, aislamiento, idempotencia).
+- Luego: Fase 1 (piloto salón de uñas), Fase 2 (hardening: outbox worker, backups)…
+
+## Alta de un cliente nuevo
+```bash
+cd scripts && npm install
+node onboard.js   # CLI guiado; ver scripts/README.md
+```
