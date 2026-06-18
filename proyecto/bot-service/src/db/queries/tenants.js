@@ -54,7 +54,17 @@ const BASE_SELECT = `
 // Flujo normal: solo tenants activos y no borrados.
 async function getTenantByPhoneId(phoneId) {
   const { rows } = await query(
-    `${BASE_SELECT} WHERE t.wa_phone_id = $1 AND t.active = TRUE AND t.deleted_at IS NULL LIMIT 1`,
+    `SELECT t.*, c.timezone, c.language, c.currency, c.bot_name, c.bot_tone, c.emoji_level,
+            c.slot_granularity_min, c.cancel_min_hours, c.noshow_margin_min, c.noshow_threshold,
+            c.reminder_24h, c.reminder_2h, c.waitlist_enabled, c.panel_password_hash,
+            f.multi_employee, f.waitlist AS feat_waitlist, f.reminders, f.noshow_tracking,
+            f.audio_messages, f.payments, ti.wa_phone_id
+       FROM tenant_integrations ti
+       JOIN tenants t ON t.id = ti.tenant_id
+       JOIN tenant_config c ON c.tenant_id = t.id
+       JOIN tenant_features f ON f.tenant_id = t.id
+      WHERE ti.provider = 'meta' AND ti.wa_phone_id = $1 AND t.active = TRUE AND t.deleted_at IS NULL
+      LIMIT 1`,
     [phoneId]
   );
   return buildTenant(rows[0]);
@@ -64,7 +74,17 @@ async function getTenantByPhoneId(phoneId) {
 // Se usa cuando hay onboarding en curso (tenant.active = FALSE).
 async function getTenantByPhoneIdForOnboarding(phoneId) {
   const { rows } = await query(
-    `${BASE_SELECT} WHERE t.wa_phone_id = $1 AND t.deleted_at IS NULL LIMIT 1`,
+    `SELECT t.*, c.timezone, c.language, c.currency, c.bot_name, c.bot_tone, c.emoji_level,
+            c.slot_granularity_min, c.cancel_min_hours, c.noshow_margin_min, c.noshow_threshold,
+            c.reminder_24h, c.reminder_2h, c.waitlist_enabled, c.panel_password_hash,
+            f.multi_employee, f.waitlist AS feat_waitlist, f.reminders, f.noshow_tracking,
+            f.audio_messages, f.payments, ti.wa_phone_id
+       FROM tenant_integrations ti
+       JOIN tenants t ON t.id = ti.tenant_id
+       JOIN tenant_config c ON c.tenant_id = t.id
+       JOIN tenant_features f ON f.tenant_id = t.id
+      WHERE ti.provider = 'meta' AND ti.wa_phone_id = $1 AND t.deleted_at IS NULL
+      LIMIT 1`,
     [phoneId]
   );
   return buildTenant(rows[0]);

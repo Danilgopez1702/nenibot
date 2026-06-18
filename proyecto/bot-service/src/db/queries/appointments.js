@@ -17,12 +17,13 @@ async function createAppointment({ tenantId, clientId, serviceId, employeeId, st
         return { ok: false, reason: 'slot_taken' };
       }
 
-      // Snapshots de servicio y empleada
+      // Snapshots de servicio y empleada (asegurar aislamiento por tenant_id)
       const snap = await client.query(
         `SELECT s.name AS sname, s.price, s.duration_min, e.name AS ename
-           FROM services s, employees e
-          WHERE s.id = $1 AND e.id = $2`,
-        [serviceId, employeeId]
+           FROM services s
+           JOIN employees e ON e.id = $2 AND e.tenant_id = $1
+          WHERE s.id = $3 AND s.tenant_id = $1`,
+        [tenantId, employeeId, serviceId]
       );
       const sn = snap.rows[0] || {};
 
@@ -137,3 +138,14 @@ module.exports = {
   createAppointment, getActiveAppointments, cancelAppointment,
   rescheduleAppointment, markNoShow, getAppointmentsForDay,
 };
+
+// Expira locks vencidos: cambia status 'locked' -> 'expired' cuando locked_until < NOW().
+async function expireLockedAppointments() {
+  const { rows } = await query(
+    `UPDATE appointments SET status = 'expired', updated_at = NOW()
+      WHERE status = 'locked' AND locked_until IS NOT NULL AND locked_until < NOW()
+      RETURNING id, tenant_id`);
+  return rows;
+}
+
+module.exports.expireLockedAppointments = expireLockedAppointments;
